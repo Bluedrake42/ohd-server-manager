@@ -140,3 +140,5 @@ dmypy.json
 # SteamCMD
 steamcmd/*
 !steamcmd/steamcmd.exe
+
+server/
