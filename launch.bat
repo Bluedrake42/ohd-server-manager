@@ -1,11 +1,3 @@
 @echo off
-
-echo Running update...
-call update.bat
-
-echo Update complete. Starting server...
-timeout /t 5 /nobreak > nul
-
-start server\HarshDoorstop\Binaries\Win64\HarshDoorstopServer.exe AAS-TestMap?MaxPlayers=16 -log -SteamServerName="Harsh Doorstop Dedicated Server" %*
-
+start server\HarshDoorstop\Binaries\Win64\HarshDoorstopServer.exe Risala?BluforNumBots=16?OpforNumBots=16?MaxPlayers=64?Game=/BigLearning/Core/BP_BLGame_Testing.BP_BLGame_Testing_C -log -MapCycle=MapCycle.cfg -AdminList=Admins.cfg -SteamServerName="Event Playtest Server" %*
 echo Server started.

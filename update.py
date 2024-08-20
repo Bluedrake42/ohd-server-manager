@@ -128,12 +128,26 @@ def copy_server_files(app_id):
     if source_path:
         print(f"Attempting to copy server files from {source_path} to {destination_path}")
 
+        # Backup the Saved directory if it exists
+        saved_path = os.path.join(destination_path, "HarshDoorstop", "Saved")
+        backup_path = os.path.join(destination_path, "HarshDoorstop_Saved_Backup")
+        if os.path.exists(saved_path):
+            print(f"Backing up {saved_path} to {backup_path}")
+            shutil.copytree(saved_path, backup_path, dirs_exist_ok=True)
+
         if os.path.exists(destination_path):
             print(f"Removing existing destination directory: {destination_path}")
             shutil.rmtree(destination_path)
         
         print(f"Copying files...")
         shutil.copytree(source_path, destination_path)
+
+        # Restore the Saved directory
+        if os.path.exists(backup_path):
+            print(f"Restoring {backup_path} to {saved_path}")
+            shutil.copytree(backup_path, saved_path, dirs_exist_ok=True)
+            shutil.rmtree(backup_path)
+
         print(f"Successfully copied server files to {destination_path}")
     else:
         print(f"Could not find the server files for app ID: {app_id}")
