@@ -5,12 +5,21 @@ import requests
 import zipfile
 import logging
 import vdf
+import configparser
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Read configuration
+config = configparser.ConfigParser()
+config.read('server.cfg')
 
 STEAMCMD_URL = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip"
 STEAMCMD_DIR = os.path.abspath("steamcmd")
 STEAMCMD_EXE = os.path.join(STEAMCMD_DIR, "steamcmd.exe")
+
+SERVER_APP_ID = config['Server']['server_app_id']
+GAME_APP_ID = config['Server']['game_app_id']
+MOD_IDS = config['Mods']['mod_ids'].split(',')
 
 def ensure_steamcmd_installed():
     if not os.path.exists(STEAMCMD_EXE):
@@ -130,8 +139,7 @@ def copy_server_files(app_id):
         print(f"Could not find the server files for app ID: {app_id}")
 
 def download_workshop_mods(mod_ids):
-    game_id = "1307180"  # Harsh Doorstop game ID
-    workshop_path = os.path.join(STEAMCMD_DIR, "steamapps", "workshop", "content", game_id)
+    workshop_path = os.path.join(STEAMCMD_DIR, "steamapps", "workshop", "content", GAME_APP_ID)
     mods_destination = os.path.join("server", "HarshDoorstop", "Mods")
 
     os.makedirs(mods_destination, exist_ok=True)
@@ -141,7 +149,7 @@ def download_workshop_mods(mod_ids):
         
         commands = [
             "+login anonymous",
-            f"+workshop_download_item {game_id} {mod_id}",
+            f"+workshop_download_item {GAME_APP_ID} {mod_id}",
             "+quit"
         ]
         stdout, stderr = run_steamcmd(commands)
@@ -172,18 +180,15 @@ def download_workshop_mods(mod_ids):
 
 # Main execution
 if __name__ == "__main__":
-    app_id = "1316480"  # Harsh Doorstop Dedicated Server app ID
-    mod_ids = ["3303068735"]  # Example mod IDs
-
     ensure_steamcmd_installed()
 
     print("Checking for updates...")
-    if update_app(app_id):
-        copy_server_files(app_id)
+    if update_app(SERVER_APP_ID):
+        copy_server_files(SERVER_APP_ID)
     else:
         print("No updates available for the main app.")
 
     print("\nDownloading and updating workshop mods...")
-    download_workshop_mods(mod_ids)
+    download_workshop_mods(MOD_IDS)
 
     print("Script execution completed.")
