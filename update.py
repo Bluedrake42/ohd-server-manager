@@ -19,7 +19,7 @@ STEAMCMD_EXE = os.path.join(STEAMCMD_DIR, "steamcmd.exe")
 
 SERVER_APP_ID = config['Server']['server_app_id']
 GAME_APP_ID = config['Server']['game_app_id']
-MOD_IDS = config['Mods']['mod_ids'].split(',')
+MOD_IDS = [mod_id.strip() for mod_id in config['Mods']['mod_ids'].split(',')]
 
 def ensure_steamcmd_installed():
     if not os.path.exists(STEAMCMD_EXE):
@@ -76,10 +76,10 @@ def update_app(app_id):
     
     stdout, stderr = run_steamcmd(commands)
     
-    if "Success! App '" + app_id + "' already up to date." in stdout:
+    if f"Success! App '{app_id}' already up to date." in stdout:
         print(f"App {app_id} is already up to date.")
         return False
-    elif "Success! App '" + app_id + "' fully installed." in stdout:
+    elif f"Success! App '{app_id}' fully installed." in stdout:
         print(f"Successfully updated app {app_id}")
         return True
     else:
@@ -171,9 +171,15 @@ def download_workshop_mods(mod_ids):
                     shutil.copytree(subdir_source, subdir_dest)
                     print(f"Moved contents of mod {mod_id} to {subdir_dest}")
                 else:
-                    print(f"No subdirectory found in mod {mod_id}")
+                    print(f"No subdirectory found in mod {mod_id}. Contents of {mod_source}: {os.listdir(mod_source)}")
+                    # If no subdirectory, copy the entire mod_source
+                    subdir_dest = os.path.join(mods_destination, f"mod_{mod_id}")
+                    if os.path.exists(subdir_dest):
+                        shutil.rmtree(subdir_dest)
+                    shutil.copytree(mod_source, subdir_dest)
+                    print(f"Copied entire mod {mod_id} to {subdir_dest}")
             else:
-                print(f"Mod directory not found for {mod_id}")
+                print(f"Mod directory not found for {mod_id}. Expected at: {mod_source}")
         else:
             print(f"Failed to download workshop item {mod_id}")
             print(f"Error: {stderr}")
