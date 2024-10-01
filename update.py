@@ -199,6 +199,28 @@ def download_workshop_mods(mod_ids):
             print(f"Failed to download workshop item {mod_id}")
             print(f"Error: {stderr}")
 
+def copy_default_config():
+    source_dir = "default-server-config"
+    dest_dir = os.path.join("server", "HarshDoorstop", "Saved", "Config", "WindowsServer")
+    
+    if not os.path.exists(source_dir):
+        print(f"Default server config directory not found: {source_dir}")
+        return
+    
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+        print(f"Created destination directory: {dest_dir}")
+    
+    for filename in os.listdir(source_dir):
+        source_file = os.path.join(source_dir, filename)
+        dest_file = os.path.join(dest_dir, filename)
+        
+        if os.path.isfile(source_file):
+            shutil.copy2(source_file, dest_file)
+            print(f"Copied {filename} to {dest_dir}")
+        else:
+            print(f"Skipped {filename} as it's not a file")
+
 # Main execution
 if __name__ == "__main__":
     ensure_steamcmd_installed()
@@ -206,6 +228,7 @@ if __name__ == "__main__":
     print("Checking for updates...")
     if update_app(SERVER_APP_ID):
         copy_server_files(SERVER_APP_ID)
+        copy_default_config()
     else:
         print("No updates available for the main app.")
 
